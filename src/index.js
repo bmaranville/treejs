@@ -1,5 +1,4 @@
 import ajax from './ajax.js';
-import './index.css';
 
 function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
