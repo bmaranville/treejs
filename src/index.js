@@ -156,7 +156,7 @@ Tree.prototype.render = function(treeNodes) {
   const treeEle = Tree.createRootEle();
   treeEle.appendChild(this.buildTree(treeNodes, 0));
   this.bindEvent(treeEle);
-  const ele = document.querySelector(this.container);
+  const ele = (this.container instanceof Element) ? this.container : document.querySelector(this.container);
   empty(ele);
   ele.appendChild(treeEle);
 };
