@@ -1,5 +1,5 @@
-import ajax from './ajax';
-import './index.less';
+import ajax from './ajax.js';
+import './index.css';
 
 function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -501,3 +501,4 @@ Tree.createLiEle = function(node, closed) {
   li.nodeId = node.id;
   return li;
 };
+
