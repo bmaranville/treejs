@@ -352,6 +352,7 @@ Tree.prototype.onSwitcherClick = function(target) {
   const liEle = target.parentNode;
   const ele = liEle.lastChild;
   const height = ele.scrollHeight;
+  const {onSwitch} = this.options;
   if (liEle.classList.contains('treejs-node__close')) {
     animation(150, {
       enter() {
@@ -366,6 +367,7 @@ Tree.prototype.onSwitcherClick = function(target) {
         ele.style.height = '';
         ele.style.opacity = '';
         liEle.classList.remove('treejs-node__close');
+        onSwitch && onSwitch.call(this);
       },
     });
   } else {
@@ -382,11 +384,10 @@ Tree.prototype.onSwitcherClick = function(target) {
         ele.style.height = '';
         ele.style.opacity = '';
         liEle.classList.add('treejs-node__close');
+        onSwitch && onSwitch.call(this);
       },
     });
   }
-  const {onSwitch} = this.options;
-  onSwitch && onSwitch.call(this);
 };
 
 Tree.prototype.walkUp = function(node, changeState) {
