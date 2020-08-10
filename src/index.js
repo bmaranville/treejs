@@ -218,7 +218,7 @@ Tree.prototype.onItemClick = function(target, forceSelect) {
   console.time('onItemClick');
   const id = target.nodeId;
   const node = this.nodesById[id];
-  const {onChange} = this.options;
+  const {onChange, onSwitch} = this.options;
   const mode = this.options.itemClickToggle;
   if (mode == 'select' || forceSelect) {
     if (!node.disabled) {
@@ -230,6 +230,7 @@ Tree.prototype.onItemClick = function(target, forceSelect) {
   else if (mode == 'closed') {
     if (!node.disabled) {
       target.classList.toggle('treejs-node__close');
+      onSwitch && onSwitch.call(this);
     }
   }
   
@@ -384,6 +385,8 @@ Tree.prototype.onSwitcherClick = function(target) {
       },
     });
   }
+  const {onSwitch} = this.options;
+  onSwitch && onSwitch.call(this);
 };
 
 Tree.prototype.walkUp = function(node, changeState) {
