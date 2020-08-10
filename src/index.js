@@ -43,7 +43,9 @@ export default function Tree(container, options) {
     url: null,
     method: 'GET',
     closeDepth: null,
+    itemClickToggle: 'select'
   };
+  // itemClickToggle should be one of [null, 'select', 'closed']
   this.treeNodes = [];
   this.nodesById = {};
   this.leafNodesById = {};
@@ -164,9 +166,10 @@ Tree.prototype.buildTree = function(nodes, depth) {
   const rootUlEle = Tree.createUlEle();
   if (nodes && nodes.length) {
     nodes.forEach(node => {
+      let closeDepth = this.options.closeDepth;
       const liEle = Tree.createLiEle(
         node,
-        depth === this.options.closeDepth - 1
+        (closeDepth != null) && (depth > closeDepth)
       );
       this.liElementsById[node.id] = liEle;
       let ulEle = null;
@@ -187,15 +190,19 @@ Tree.prototype.bindEvent = function(ele) {
       const {target} = e;
       if (
         target.nodeName === 'SPAN' &&
-        (target.classList.contains('treejs-checkbox') ||
-          target.classList.contains('treejs-label'))
+        target.classList.contains('treejs-checkbox')
       ) {
-        this.onItemClick(target.parentNode.nodeId);
+        this.onItemClick(target.parentNode, true)
+      } else if (
+        target.nodeName === 'SPAN' &&
+        target.classList.contains('treejs-label')
+      ) {
+        this.onItemClick(target.parentNode);
       } else if (
         target.nodeName === 'LI' &&
         target.classList.contains('treejs-node')
       ) {
-        this.onItemClick(target.nodeId);
+        this.onItemClick(target);
       } else if (
         target.nodeName === 'SPAN' &&
         target.classList.contains('treejs-switcher')
@@ -207,15 +214,25 @@ Tree.prototype.bindEvent = function(ele) {
   );
 };
 
-Tree.prototype.onItemClick = function(id) {
+Tree.prototype.onItemClick = function(target, forceSelect) {
   console.time('onItemClick');
+  const id = target.nodeId;
   const node = this.nodesById[id];
   const {onChange} = this.options;
-  if (!node.disabled) {
-    this.setValue(id);
-    this.updateLiElements();
+  const mode = this.options.itemClickToggle;
+  if (mode == 'select' || forceSelect) {
+    if (!node.disabled) {
+      this.setValue(id);
+      this.updateLiElements();
+    }
+    onChange && onChange.call(this);
   }
-  onChange && onChange.call(this);
+  else if (mode == 'closed') {
+    if (!node.disabled) {
+      target.classList.toggle('treejs-node__close');
+    }
+  }
+  
   console.timeEnd('onItemClick');
 };
 
@@ -251,8 +268,8 @@ Tree.prototype.setValues = function(values) {
     this.setValue(value);
   });
   this.updateLiElements();
-  const {onChange} = this.options;
-  onChange && onChange.call(this);
+  const {onSet} = this.options;
+  onSet && onSet.call(this);
 };
 
 Tree.prototype.setDisable = function(value) {
@@ -494,8 +511,12 @@ Tree.createLiEle = function(node, closed) {
   li.appendChild(checkbox);
   const label = document.createElement('span');
   label.classList.add('treejs-label');
-  const text = document.createTextNode(node.text);
-  label.appendChild(text);
+  if (node.attributes) {
+    Object.entries(node.attributes).forEach(([k,v]) => {
+      label.setAttribute(k, v);
+    });
+  }
+  label.innerHTML = node.text;
   li.appendChild(label);
   li.nodeId = node.id;
   return li;
