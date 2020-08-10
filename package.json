@@ -3,6 +3,7 @@
   "version": "1.8.2",
   "description": "a lightweight tree widget, compatible with originaljs/react/vue, 9.6kb size for tree.min.js&tree.min.css without gzip.",
   "main": "index.js",
+  "module": "src/index.js",
   "scripts": {
     "build": "webpack --progress"
   },
